@@ -38,7 +38,7 @@ public class AppHost : AppHostBase, IHostingStartup
                 resolvePath: ctx => $"/profiles/employees/{ctx.Dto.GetId()}.{ctx.FileExtension}")));
 
         ConfigurePlugin<UiFeature>(feature => 
-            feature.Info.BrandIcon = X.Apply(Svg.CreateImage(Icons["Shipper"]), x => x.Cls = "w-8 h-8 text-blue-700 mr-1"));
+            feature.Info.BrandIcon = new ImageInfo { Uri = "/logo.svg", Cls = "w-8 h-8 mr-1" });
 
         Plugins.Add(new AutoQueryFeature {
             MaxLimit = 100,
