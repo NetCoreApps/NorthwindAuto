@@ -1,135 +1,104 @@
 <html>
 <head>
-    <title>Northwind CRUD</title>
-    <style>
-        body { padding: 3em; }
-        body, input[type=text] { font: 32px/42px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif }
-        input { padding:.25em .5em; margin-right:.5em; }
-        #info { font-size: 20px; line-height: 26px; }
-        a { color: #007bff }
-        #result { display:inline-block;color:#28a745; }
-        th, td { padding-right: 1em; vertical-align:top; }
-        th { text-align: left; }
-        pre { border: 1px solid #ccc; padding: .25em .5em; width: 50%; min-width: 750px; color: #444; }
-        pre.sh { background: #f1f1f1; }
-        pre.comment { color: green; }
-        pre.sh::before { content: "$ " }
-        .muted { color: #999; }
-        ul, li { margin: 0; padding: 0; }
-        ul { list-style:none; }
-    </style>
+<title>Northwind Auto</title>
+<link rel="stylesheet" href="/modules/shared/css/ui.css">
+<style>
+.py-48{padding-top:12rem;padding-bottom:12rem}
+.py-16{padding-top:4rem;padding-bottom:4rem}
+.pb-12{padding-bottom:3rem}
+.pl-12{padding-left:3rem}
+.-mr-3{margin-right:-0.75rem}
+.-mr-40{margin-right:-10rem}
+.mt-12{margin-top:3rem}
+.mt-20{margin-top:5rem}
+.max-w-3xl{max-width:48rem}.max-w-7xl{max-width:80rem}
+.max-w-none{max-width:none}
+.top-8{top:2rem}
+.left-80{left:20rem}
+.right-1\/2{right:50%}
+.text-5xl{font-size:3rem;line-height:1}
+.text-gray-200{color:rgb(229 231 235)}
+.inset-y-0{top:0;bottom:0}
+.gap-24{gap:6rem}
+.rounded-l-3xl{border-top-left-radius:1.5rem;border-bottom-left-radius:1.5rem}
+</style>
 </head>
-<body>
+<body class="p-4">
 
-    <div id="info">
-
-        <h2>AutoCrud Generation Links</h2>
-        <table>
-            <tr>
-                <th>RDBMS Schema</th>
-                <td>
-                    <a href="/crud/tables">/crud/tables</a>
-                </td>
-            </tr>
-            <tr>
-                <th>New Auto Generated Services (C#)</th>
-                <td>
-                    <a href="/crud/new/csharp">/crud/new/csharp</a>
-                </td>
-            </tr>
-            <tr>
-                <th>All Services (C#)</th>
-                <td>
-                    <a href="/crud/all/csharp">/crud/all/csharp</a>
-                </td>
-            </tr>
-            <tr>
-                <th>Generate DTOs in alt languages (e.g. TypeScript)</th>
-                <td>
-                    <ul>
-                        <li><a href="/crud/all/typescript">/crud/all/typescript</a></li>
-                        <li><a href="/crud/all/dart">/crud/all/dart</a></li>
-                        <li><a href="/crud/all/java">/crud/all/java</a></li>
-                        <li><a href="/crud/all/kotlin">/crud/all/kotlin</a></li>
-                        <li><a href="/crud/all/swift">/crud/all/swift</a></li>
-                        <li><a href="/crud/all/vbnet">/crud/all/vbnet</a></li>
-                        <li><a href="/crud/all/fsharp">/crud/all/fsharp</a></li>
-                    </ul>
-                </td>
-            </tr>
-            <tfoot>
-            <tr>
-                <td colspan="2" class="muted" style="padding:.5em 0 0 0">
-                    * requires <a href="https://docs.servicestack.net/debugging#debugmode">DebugMode</a> or Admin role
-                    (e.g. <a href="https://docs.servicestack.net/debugging#authsecret">?authsecret=zsecret</a>)
-                </td>
-            </tr>
-            </tfoot>
-        </table>
-
-        <h3>Eject into code-first models</h3>
-        <p>
-            Use dotnet tool to generate Types for Tables where AutoQuery Services don't already exist:
-        </p>
-        
-        <pre class="sh">x csharp https://localhost:5001 -path /crud/new/csharp</pre>
-        
-        <div>
-            If RDBMS Schema changes, can update dtos as normal:
+<div class="bg-white pb-8 pb-12">
+    <div class="pt-8 overflow-hidden relative py-48">
+        <div class="mx-auto px-4 px-8 max-w-7xl grid grid-cols-2 gap-24">
+            <div>
+                <div>
+                    <svg class="h-11 w-auto text-indigo-600" xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor' aria-hidden='true'>
+                        <path fill='currentColor' d='M4 10.4V4a1 1 0 0 1 1-1h5V1h4v2h5a1 1 0 0 1 1 1v6.4l1.086.326a1 1 0 0 1 .682 1.2l-1.516 6.068A4.992 4.992 0 0 1 16 16a4.992 4.992 0 0 1-4 2a4.992 4.992 0 0 1-4-2a4.992 4.992 0 0 1-4.252 1.994l-1.516-6.068a1 1 0 0 1 .682-1.2L4 10.4zm2-.6L12 8l2.754.826l1.809.543L18 9.8V5H6v4.8zM4 20a5.978 5.978 0 0 0 4-1.528A5.978 5.978 0 0 0 12 20a5.978 5.978 0 0 0 4-1.528A5.978 5.978 0 0 0 20 20h2v2h-2a7.963 7.963 0 0 1-4-1.07A7.963 7.963 0 0 1 12 22a7.963 7.963 0 0 1-4-1.07A7.963 7.963 0 0 1 4 22H2v-2h2z'/>
+                    </svg>
+                </div>
+                <div class="mt-20">
+                    <div>
+                        <a href="/locode" class="inline-flex space-x-4">
+                            <span class="rounded bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600 tracking-wide uppercase"> What's new </span>
+                            <span class="inline-flex items-center text-sm font-medium text-indigo-600 space-x-1">
+                            <span>Open Northwind in Locode</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                          </span>
+                        </a>
+                    </div>
+                    <div class="mt-6 max-w-xl">
+                        <h1 class="font-extrabold text-gray-900 tracking-tight text-5xl">
+                            Northwind Auto APIs &amp; Locode App
+                        </h1>
+                        <p class="mt-6 text-xl text-gray-500">
+                            Northwind Auto is a customized database-first Northwind App using
+                            <a class="text-indigo-600" href="https://docs.servicestack.net/autoquery-autogen">AutoGen</a> to generate
+                            <a class="text-indigo-600" href="https://docs.servicestack.net/autoquery-rdbms">AutoQuery</a> &amp;
+                            <a class="text-indigo-600" href="https://docs.servicestack.net/autoquery-crud">CRUD</a> APIs
+                            in less than <span class="font-semibold text-gray-900">130 Lines of Code</span> in
+                            <a class="text-indigo-600" href="https://github.com/NetCoreApps/NorthwindAuto/blob/master/Configure.AppHost.cs">Configure.AppHost.cs</a>                            
+                        </p>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-2xl font-medium text-gray-900 mb-3">
+                            Explore Features
+                        </p>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><g fill="none"><path d="M4 5c0-1.007.875-1.755 1.904-2.223C6.978 2.289 8.427 2 10 2s3.022.289 4.096.777C15.125 3.245 16 3.993 16 5v4.758a4.485 4.485 0 0 0-1-.502V6.698a4.92 4.92 0 0 1-.904.525C13.022 7.711 11.573 8 10 8s-3.022-.289-4.096-.777A4.92 4.92 0 0 1 5 6.698V15c0 .374.356.875 1.318 1.313c.916.416 2.218.687 3.682.687c.22 0 .437-.006.65-.018c.447.367.966.65 1.534.822c-.68.127-1.417.196-2.184.196c-1.573 0-3.022-.289-4.096-.777C4.875 16.755 4 16.007 4 15V5zm1 0c0 .374.356.875 1.318 1.313C7.234 6.729 8.536 7 10 7s2.766-.27 3.682-.687C14.644 5.875 15 5.373 15 5c0-.374-.356-.875-1.318-1.313C12.766 3.271 11.464 3 10 3s-2.766.27-3.682.687C5.356 4.125 5 4.627 5 5zm8.5 12c.786 0 1.512-.26 2.096-.697l2.55 2.55a.5.5 0 1 0 .708-.707l-2.55-2.55A3.5 3.5 0 1 0 13.5 17zm0-1a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z" fill="currentColor"></path></g></svg>
+                            <a class="text-xl text-indigo-600" href="/locode">Manage database with Locode</a>
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 32"><g fill="currentColor"><path d="M27.464 2.314a.501.501 0 0 0-.698-.257L14.86 8.339a.499.499 0 0 0-.233.621l.245.641l-6.873 3.769a.5.5 0 0 0-.222.63l.228.549l-7.299 3.488a.5.5 0 0 0-.246.643l1.498 3.61a.5.5 0 0 0 .629.28l7.625-2.701l.228.549a.5.5 0 0 0 .601.289l7.276-2.097l.218.569a.497.497 0 0 0 .612.299l13-4a.498.498 0 0 0 .317-.663l-5-12.501zM2.7 21.469l-1.134-2.734l6.823-3.261l1.439 3.47L2.7 21.469zm8.491-1.846l-.238-.574l-1.843-4.445l-.238-.573l6.336-3.475l2.374 6.134l.375.981l-6.766 1.952zm8.109-1.238l-.203-.531c-.003-.011-.001-.024-.006-.035l-.618-1.597l-2.754-7.206l11.023-5.815l4.592 11.48L19.3 18.385z"></path><path d="M28.964.314a.5.5 0 0 0-.929.371l6 15a.502.502 0 0 0 .651.279a.501.501 0 0 0 .279-.65l-6.001-15z"></path><path d="M18 21h-3c-1.14 0-2 .86-2 2v1.315l-5.879 6.859a.5.5 0 1 0 .758.651L13.73 25H16v6.5a.5.5 0 0 0 1 0V25h2.27l5.85 6.825a.497.497 0 0 0 .705.054a.5.5 0 0 0 .054-.705L20 24.315v-1.24C20 21.912 19.122 21 18 21zm1 3h-5v-1c0-.589.411-1 1-1h3c.57 0 1 .462 1 1.075V24z"></path></g></svg>
+                            <a class="text-xl text-indigo-600" href="/ui">Explore APIs in API Explorer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <pre class="sh">x csharp</pre>
 
+        <div class="mx-auto max-w-3xl px-6">
+            <div class="mt-12 py-16 absolute inset-y-0 right-0 w-1/2">
+                <div class="hidden sm:block">
+                    <div class="absolute inset-y-0 w-screen bg-gray-50 rounded-l-3xl left-80 right-0 w-full"></div>
+                    <svg class="absolute top-8 right-1/2 -mr-3 m-0 left-0" width="404" height="392" fill="none" viewBox="0 0 404 392">
+                        <defs>
+                            <pattern id="837c3e70-6c3a-44e6-8854-cc48c737b659" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <rect x="0" y="0" width="4" height="4" class="text-gray-200" fill="currentColor" />
+                            </pattern>
+                        </defs>
+                        <rect width="404" height="392" fill="url(#837c3e70-6c3a-44e6-8854-cc48c737b659)" />
+                    </svg>
+                </div>
+                <div class="relative -mr-40 mx-auto max-w-3xl px-0 max-w-none h-full pl-12">
+                    <a href="/locode">
+                        <img class="w-full rounded-md shadow-xl ring-1 ring-black ring-opacity-5 h-full w-auto max-w-none" 
+                             src="/screenshot.png" alt="">
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <h2 style="margin-top:2em; border-top: 1px solid #eee; padding-top:.5em">
-        <a href="/json/metadata?op=Hello">Hello</a> API
-    </h2>
-    <input type="text" id="txtName" placeholder="Name" onkeyup="callHello(this.value)">
-    <div id="result"></div>
-    
-    <h3>Example Code</h3>
-    <div style="font-size:20px;line-height:26px">
-        <pre>&lt;script src="/js/servicestack-client.js"&gt;&lt;/script&gt;</pre>
-        <pre class="csharp">Object.assign(window, window['@servicestack/client']) //import
-
-var client = new JsonServiceClient()
-client.get(new Hello({ name: name }))
-    .then(function(r) {
-        console.log(r.result)
-    })
-</pre>
-        
-        <p>
-            Generate Typed DTOs from 
-            <a href="https://docs.servicestack.net/typescript-add-servicestack-reference">Add ServiceStack Reference</a> 
-        </p>
-    </div>
-
-<script src="/js/servicestack-client.js"></script>
-<script>
-    Object.assign(window, window['@servicestack/client']); //import into global namespace
-
-    // generate typed dtos with https://docs.servicestack.net/typescript-add-servicestack-reference
-    var Hello = /** @class */ (function () {
-        function Hello(init) { Object.assign(this, init); }
-        Hello.prototype.createResponse = function () { return new HelloResponse(); };
-        Hello.prototype.getTypeName = function () { return 'Hello'; };
-        return Hello;
-    }());
-    var HelloResponse = /** @class */ (function () {
-        function HelloResponse(init) { Object.assign(this, init); }
-        return HelloResponse;
-    }());
-
-    var client = new JsonServiceClient();
-    function callHello(val) {
-        client.get(new Hello({ name: val }))
-            .then(function(r) {
-                document.getElementById('result').innerHTML = r.result;
-            });
-    }
-</script>
-
+</div>
 
 </body>
 </html>
