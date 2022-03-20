@@ -54,7 +54,7 @@ jobs:
           HOST_DOMAIN: ${{ env.domain }}
           LETSENCRYPT_EMAIL: ${{ env.letsencrypt_email }}
         with:
-          input: deploy/docker-compose-template.yml
+          input: .deploy/docker-compose-template.yml
           output: .deploy/${{ github.event.repository.name }}-docker-compose.yml
 
       - name: copy compose file via scp
