@@ -21,7 +21,6 @@ public class AppHost : AppHostBase, IHostingStartup
                 new OrmLiteConnectionFactory(
                     context.HostingEnvironment.ContentRootPath.CombineWith("northwind.sqlite"),
                     SqliteDialect.Provider));
-
             // Enable Audit History
             services.AddSingleton<ICrudEvents>(c =>
                 new OrmLiteCrudEvents(c.Resolve<IDbConnectionFactory>()));
@@ -92,9 +91,8 @@ public class AppHost : AppHostBase, IHostingStartup
                                 .AddAttribute(new IntlNumber(NumberStyle.Percent));
                             break;
                         case "EmployeeTerritory":
-                            type.Property("TerritoryId")
-                                .AddAttribute(new RefAttribute
-                                    { Model = "Territory", RefId = "Id", RefLabel = "TerritoryDescription" });
+                            type.Property("TerritoryId").AddAttribute(
+                                new RefAttribute { Model = "Territory", RefId = "Id", RefLabel = "TerritoryDescription" });
                             break;
                     }
                 },
