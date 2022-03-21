@@ -1,20 +1,20 @@
 <script>
-    App.components({
-        Welcome() {
-            return {
-                $template: '#welcome-template',
-                lastOrders: [],
-                mounted() {
-                    client.api(new QueryOrders({ orderBy:'-Id', take:5, fields:'Id,CustomerId,OrderDate,Freight' }), { jsconfig: 'edv' })
-                        .then(api => {
-                            if (api.succeeded) {
-                                this.lastOrders = api.response.results
-                            }
-                        })
-                }
+App.components({
+    Welcome() {
+        return {
+            $template: '#welcome-template',
+            lastOrders: [],
+            mounted() {
+                client.api(new QueryOrders({ orderBy:'-Id', take:5, fields:'Id,CustomerId,OrderDate,Freight' }), { jsconfig: 'edv' })
+                    .then(api => {
+                        if (api.succeeded) {
+                            this.lastOrders = api.response.results
+                        }
+                    })
             }
         }
-    })
+    }
+})
 </script>
 <template id="welcome-template">
     <div class="pl-4" @vue:mounted="mounted">

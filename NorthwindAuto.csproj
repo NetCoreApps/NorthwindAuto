@@ -22,4 +22,10 @@
     <Folder Include="wwwroot\modules" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="northwind.sqlite">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
