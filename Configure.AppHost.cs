@@ -21,9 +21,6 @@ public class AppHost : AppHostBase, IHostingStartup
                 new OrmLiteConnectionFactory(
                     context.HostingEnvironment.ContentRootPath.CombineWith("northwind.sqlite"),
                     SqliteDialect.Provider));
-            // Enable Audit History
-            services.AddSingleton<ICrudEvents>(c =>
-                new OrmLiteCrudEvents(c.Resolve<IDbConnectionFactory>()));
         });
 
     public override void Configure(Container container)
@@ -68,9 +65,8 @@ public class AppHost : AppHostBase, IHostingStartup
                         }
                         else if (type.Name == "Employee")
                         {
-                            type.Property("ReportsTo")
-                                .AddAttribute(new RefAttribute
-                                    { Model = "Employee", RefId = "Id", RefLabel = "LastName" });
+                            type.Property("ReportsTo").AddAttribute(
+                                new RefAttribute { Model = "Employee", RefId = "Id", RefLabel = "LastName" });
                         }
                     }
                     switch (type.Name)
@@ -80,9 +76,8 @@ public class AppHost : AppHostBase, IHostingStartup
                                 p.AddAttribute(new IntlDateTime(DateStyle.Medium)));
                             type.Properties.First(x => x.Name == "Freight")
                                 .AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
-                            type.Property("ShipVia")
-                                .AddAttribute(new RefAttribute
-                                    { Model = "Shipper", RefId = "Id", RefLabel = "CompanyName" });
+                            type.Property("ShipVia").AddAttribute(
+                                new RefAttribute { Model = "Shipper", RefId = "Id", RefLabel = "CompanyName" });
                             break;
                         case "OrderDetail":
                             type.Properties.First(x => x.Name == "UnitPrice")
@@ -98,7 +93,6 @@ public class AppHost : AppHostBase, IHostingStartup
                 },
             },
         });
-        container.Resolve<ICrudEvents>().InitSchema();
     }
 
     public static Dictionary<string, string> Icons { get; } = new()
