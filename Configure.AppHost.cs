@@ -7,7 +7,6 @@ using ServiceStack.IO;
 using ServiceStack.OrmLite;
 
 [assembly: HostingStartup(typeof(NorthwindAuto.AppHost))]
-
 namespace NorthwindAuto;
 
 public class AppHost : AppHostBase, IHostingStartup
@@ -17,10 +16,9 @@ public class AppHost : AppHostBase, IHostingStartup
     public void Configure(IWebHostBuilder builder) => builder
         .ConfigureServices((context, services) => {
             // Register Database Connection, see: https://docs.servicestack.net/ormlite/
-            services.AddSingleton<IDbConnectionFactory>(c =>
-                new OrmLiteConnectionFactory(
-                    context.HostingEnvironment.ContentRootPath.CombineWith("northwind.sqlite"),
-                    SqliteDialect.Provider));
+            services.AddSingleton<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
+                context.HostingEnvironment.ContentRootPath.CombineWith("northwind.sqlite"),
+                SqliteDialect.Provider));
         });
 
     public override void Configure(Container container)
@@ -67,34 +65,36 @@ public class AppHost : AppHostBase, IHostingStartup
                         {
                             type.Property("ReportsTo").AddAttribute(
                                 new RefAttribute { Model = "Employee", RefId = "Id", RefLabel = "LastName" });
+                            type.Property("HomePhone").AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
                         }
                     }
-                    switch (type.Name)
+                    else if (type.Name == "Order")
                     {
-                        case "Order":
-                            type.Properties.Where(x => x.Name.EndsWith("Date")).Each(p =>
-                                p.AddAttribute(new IntlDateTime(DateStyle.Medium)));
-                            type.Properties.First(x => x.Name == "Freight")
-                                .AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
-                            type.Property("ShipVia").AddAttribute(
-                                new RefAttribute { Model = "Shipper", RefId = "Id", RefLabel = "CompanyName" });
-                            break;
-                        case "OrderDetail":
-                            type.Properties.First(x => x.Name == "UnitPrice")
-                                .AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
-                            type.Properties.First(x => x.Name == "Discount")
-                                .AddAttribute(new IntlNumber(NumberStyle.Percent));
-                            break;
-                        case "EmployeeTerritory":
-                            type.Property("TerritoryId").AddAttribute(
-                                new RefAttribute { Model = "Territory", RefId = "Id", RefLabel = "TerritoryDescription" });
-                            break;
+                        type.Properties.Where(x => x.Name.EndsWith("Date")).Each(p =>
+                            p.AddAttribute(new IntlDateTime(DateStyle.Medium)));
+                        type.Property("Freight").AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
+                        type.Property("ShipVia").AddAttribute(
+                            new RefAttribute { Model = "Shipper", RefId = "Id", RefLabel = "CompanyName" });
+                    }
+                    else if (type.Name == "OrderDetail")
+                    {
+                        type.Property("UnitPrice").AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
+                        type.Property("Discount").AddAttribute(new IntlNumber(NumberStyle.Percent));
+                    }
+                    else if (type.Name == "EmployeeTerritory")
+                    {
+                        type.Property("TerritoryId").AddAttribute(
+                            new RefAttribute { Model = "Territory", RefId = "Id", RefLabel = "TerritoryDescription" });
+                    }
+                    else if (type.Name is "Customer" or "Supplier" or "Shipper")
+                    {
+                        type.Property("Phone").AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
+                        type.Property("Fax")?.AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
                     }
                 },
             },
         });
     }
-
     public static Dictionary<string, string> Icons { get; } = new()
     {
         ["Category"] = "<path fill='currentColor' d='M20 5h-9.586L8.707 3.293A.997.997 0 0 0 8 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V7c0-1.103-.897-2-2-2z'/>",
