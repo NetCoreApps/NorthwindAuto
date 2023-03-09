@@ -1,7 +1,7 @@
 using NorthwindAuto;
 using ServiceStack;
 
-Licensing.RegisterLicense("OSS BSD-3-Clause 2022 https://github.com/NetCoreApps/NorthwindAuto ckEe9QZMp81KLdfriyot8eJX05KVNXOB+7xWoOCTIxOSLNCO0JkC6mTtx3kwEI1erMFOkNCPORt2RqvObrrni18wt6PYgua1lNatq5LuNErrdQKKb6b7MbObmJA118VLMQCkPNplBYwl0TeWex6wfVhUWtxgzLbEp+5NCjWTIio=");
+ServiceStack.Licensing.RegisterLicense("OSS BSD-3-Clause 2023 https://github.com/NetCoreApps/NorthwindAuto C623PT+qbRoeQ8S1/gJ2WpGY+8O/Rh97xyFx3RmIorDOGrKaW7fTbn9IBNlFkTbGzj1x/U6Pq/sPzIboSZazlJCSg9s+HNUop0SnhvN91Zm/STnw+G9E8JF79IOaxM1a0DCKAUrYnysyLAB3vcPJTDe+L60tlHhj9edz3kdEo3w=");
 
 var builder = WebApplication.CreateBuilder(args);
 
