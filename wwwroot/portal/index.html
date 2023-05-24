@@ -209,7 +209,6 @@ const App = {
 const client = JsonApiClient.create()
 const app = createApp(App)
 app.use(ServiceStackVue)
-//app.component('RouterLink', ServiceStackVue.component('RouterLink'))
 app.provide('client', client)
 app.mount('#app')
 </script>
