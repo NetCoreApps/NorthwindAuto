@@ -521,6 +521,7 @@ export declare function toCamelCase(s: string): string;
 export declare function toPascalCase(s: string): string;
 export declare function toKebabCase(s: string): string;
 export declare function map(o: any, f: (x: any) => any): any;
+export declare function camelCaseAny(o: any): any;
 export declare function sanitize(status: any): any;
 export declare function nameOf(o: any): any;
 export declare function css(selector: string | NodeListOf<Element>, name: string, value: string): void;
@@ -575,11 +576,23 @@ export declare function msToTime(s: number): string;
 export declare function padStart(s: string, len: number, pad: string): string;
 export interface ICreateElementOptions {
     insertAfter?: Element | null;
+    attrs?: {
+        [name: string]: string;
+    } | null;
+    events?: {
+        [name: string]: Function;
+    } | null;
 }
-export declare function createElement(tagName: string, options?: ICreateElementOptions, attrs?: any): HTMLElement;
+export declare function createElement(tagName: string, options?: ICreateElementOptions): HTMLElement;
+export declare function isElement(el: any): boolean;
 export declare function $1(sel: string | any, el?: HTMLElement): any;
 export declare function $$(sel: string | any, el?: HTMLElement): any;
-export declare function on(sel: any, handlers: any): void;
+export declare function on(sel: any, handlers: {
+    [name: string]: Function;
+}): {
+    [name: string]: Function;
+};
+export declare function addScript(src: string): Promise<unknown>;
 export declare function delaySet(f: (loading: boolean) => any, opt?: {
     duration?: number;
 }): () => void;
@@ -628,6 +641,7 @@ export declare function trimEnd(s: string, c: string): string;
 export declare function safeVarName(s: string): string;
 export declare function pick(o: any, keys: string[]): {};
 export declare function omit(o: any, keys: string[]): {};
+export declare function omitEmpty(o: any): {};
 export declare function apply<T>(x: T, fn: (x: T) => void): T;
 export declare function each(xs: any[], f: (acc: any, x: any) => void, o?: any): any;
 export declare function resolve<T>(o: T, f?: (x: T) => any): any;

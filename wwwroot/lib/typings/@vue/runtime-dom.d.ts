@@ -1,4 +1,4 @@
-import { SetupContext, RenderFunction, ComputedOptions, MethodOptions, ComponentOptionsMixin, EmitsOptions, ComponentInjectOptions, SlotsType, ComponentOptionsWithoutProps, ComponentOptionsWithArrayProps, ComponentPropsOptions, ComponentOptionsWithObjectProps, ExtractPropTypes, ComponentPublicInstance, ComponentInternalInstance, RootHydrateFunction, ConcreteComponent, BaseTransitionProps, FunctionalComponent, ObjectDirective, VNodeRef, RootRenderFunction, CreateAppFunction } from '@vue/runtime-core';
+import { SetupContext, RenderFunction, ComputedOptions, MethodOptions, ComponentOptionsMixin, EmitsOptions, ComponentInjectOptions, SlotsType, ComponentOptionsWithoutProps, ComponentOptionsWithArrayProps, ComponentPropsOptions, ComponentOptionsWithObjectProps, ExtractPropTypes, DefineComponent, RootHydrateFunction, ConcreteComponent, BaseTransitionProps, FunctionalComponent, ObjectDirective, VNodeRef, RootRenderFunction, CreateAppFunction } from '@vue/runtime-core';
 export * from '@vue/runtime-core';
 import * as CSS from 'csstype';
 
@@ -17,9 +17,8 @@ export declare function defineCustomElement<PropNames extends string, RawBinding
 export declare function defineCustomElement<PropsOptions extends Readonly<ComponentPropsOptions>, RawBindings, D, C extends ComputedOptions = {}, M extends MethodOptions = {}, Mixin extends ComponentOptionsMixin = ComponentOptionsMixin, Extends extends ComponentOptionsMixin = ComponentOptionsMixin, E extends EmitsOptions = Record<string, any>, EE extends string = string, I extends ComponentInjectOptions = {}, II extends string = string, S extends SlotsType = {}>(options: ComponentOptionsWithObjectProps<PropsOptions, RawBindings, D, C, M, Mixin, Extends, E, EE, I, II, S> & {
     styles?: string[];
 }): VueElementConstructor<ExtractPropTypes<PropsOptions>>;
-export declare function defineCustomElement(options: {
-    new (...args: any[]): ComponentPublicInstance;
-}): VueElementConstructor;
+export declare function defineCustomElement<P>(options: DefineComponent<P, any, any, any>): VueElementConstructor<ExtractPropTypes<P>>;
+/*! #__NO_SIDE_EFFECTS__ */
 export declare const defineSSRCustomElement: typeof defineCustomElement;
 declare const BaseClass: {
     new (): HTMLElement;
@@ -31,11 +30,11 @@ type InnerComponentDef = ConcreteComponent & {
 export declare class VueElement extends BaseClass {
     private _def;
     private _props;
-    /* removed internal: _instance */
     private _connected;
     private _resolved;
     private _numberProps;
     private _styles?;
+    private _ob?;
     constructor(_def: InnerComponentDef, _props?: Record<string, any>, hydrate?: RootHydrateFunction);
     connectedCallback(): void;
     disconnectedCallback(): void;
@@ -45,8 +44,6 @@ export declare class VueElement extends BaseClass {
     private _resolveDef;
     private _resolveProps;
     protected _setAttr(key: string): void;
-    /* removed internal: _getProp */
-    /* removed internal: _setProp */
     private _update;
     private _createVNode;
     private _applyStyles;
@@ -92,8 +89,9 @@ export declare const TransitionGroup: new () => {
 };
 
 type AssignerFn = (value: any) => void;
+declare const assignKey: unique symbol;
 type ModelDirective<T> = ObjectDirective<T & {
-    _assign: AssignerFn;
+    [assignKey]: AssignerFn;
 }>;
 export declare const vModelText: ModelDirective<HTMLInputElement | HTMLTextAreaElement>;
 export declare const vModelCheckbox: ModelDirective<HTMLInputElement>;
@@ -110,8 +108,9 @@ export declare const withModifiers: (fn: Function, modifiers: string[]) => (even
  */
 export declare const withKeys: (fn: Function, modifiers: string[]) => (event: KeyboardEvent) => any;
 
+declare const vShowOldKey: unique symbol;
 interface VShowElement extends HTMLElement {
-    _vod: string;
+    [vShowOldKey]: string;
 }
 export declare const vShow: ObjectDirective<VShowElement>;
 
@@ -270,7 +269,7 @@ interface AriaAttributes {
      * Indicates what notifications the user agent will trigger when the accessibility tree within a live region is modified.
      * @see aria-atomic.
      */
-    'aria-relevant'?: 'additions' | 'additions text' | 'all' | 'removals' | 'text';
+    'aria-relevant'?: 'additions' | 'additions removals' | 'additions text' | 'all' | 'removals' | 'removals additions' | 'removals text' | 'text' | 'text additions' | 'text removals';
     /** Indicates that user input is required on the element before a form may be submitted. */
     'aria-required'?: Booleanish;
     /** Defines a human-readable, author-localized description for the role of an element. */
@@ -314,18 +313,19 @@ interface AriaAttributes {
     /** Defines the human readable text alternative of aria-valuenow for a range widget. */
     'aria-valuetext'?: string;
 }
-export type StyleValue = string | CSSProperties | Array<StyleValue>;
+export type StyleValue = false | null | undefined | string | CSSProperties | Array<StyleValue>;
 export interface HTMLAttributes extends AriaAttributes, EventHandlers<Events> {
     innerHTML?: string;
     class?: any;
     style?: StyleValue;
     accesskey?: string;
-    contenteditable?: Booleanish | 'inherit';
+    contenteditable?: Booleanish | 'inherit' | 'plaintext-only';
     contextmenu?: string;
     dir?: string;
     draggable?: Booleanish;
-    hidden?: Booleanish;
+    hidden?: Booleanish | '' | 'hidden' | 'until-found';
     id?: string;
+    inert?: Booleanish;
     lang?: string;
     placeholder?: string;
     spellcheck?: Booleanish;
@@ -409,7 +409,7 @@ export interface ButtonHTMLAttributes extends HTMLAttributes {
     formtarget?: string;
     name?: string;
     type?: 'submit' | 'reset' | 'button';
-    value?: string | string[] | number;
+    value?: string | ReadonlyArray<string> | number;
 }
 export interface CanvasHTMLAttributes extends HTMLAttributes {
     height?: Numberish;
@@ -423,10 +423,11 @@ export interface ColgroupHTMLAttributes extends HTMLAttributes {
     span?: Numberish;
 }
 export interface DataHTMLAttributes extends HTMLAttributes {
-    value?: string | string[] | number;
+    value?: string | ReadonlyArray<string> | number;
 }
 export interface DetailsHTMLAttributes extends HTMLAttributes {
     open?: Booleanish;
+    onToggle?: Event;
 }
 export interface DelHTMLAttributes extends HTMLAttributes {
     cite?: string;
@@ -463,13 +464,17 @@ export interface IframeHTMLAttributes extends HTMLAttributes {
     allow?: string;
     allowfullscreen?: Booleanish;
     allowtransparency?: Booleanish;
+    /** @deprecated */
     frameborder?: Numberish;
     height?: Numberish;
+    /** @deprecated */
     marginheight?: Numberish;
+    /** @deprecated */
     marginwidth?: Numberish;
     name?: string;
     referrerpolicy?: HTMLAttributeReferrerPolicy;
     sandbox?: string;
+    /** @deprecated */
     scrolling?: string;
     seamless?: Booleanish;
     src?: string;
@@ -481,6 +486,7 @@ export interface ImgHTMLAttributes extends HTMLAttributes {
     crossorigin?: 'anonymous' | 'use-credentials' | '';
     decoding?: 'async' | 'auto' | 'sync';
     height?: Numberish;
+    loading?: 'eager' | 'lazy';
     referrerpolicy?: HTMLAttributeReferrerPolicy;
     sizes?: string;
     src?: string;
@@ -492,6 +498,7 @@ export interface InsHTMLAttributes extends HTMLAttributes {
     cite?: string;
     datetime?: string;
 }
+export type InputTypeHTMLAttribute = 'button' | 'checkbox' | 'color' | 'date' | 'datetime-local' | 'email' | 'file' | 'hidden' | 'image' | 'month' | 'number' | 'password' | 'radio' | 'range' | 'reset' | 'search' | 'submit' | 'tel' | 'text' | 'time' | 'url' | 'week' | (string & {});
 export interface InputHTMLAttributes extends HTMLAttributes {
     accept?: string;
     alt?: string;
@@ -501,6 +508,7 @@ export interface InputHTMLAttributes extends HTMLAttributes {
     checked?: Booleanish | any[] | Set<any>;
     crossorigin?: string;
     disabled?: Booleanish;
+    enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
     form?: string;
     formaction?: string;
     formenctype?: string;
@@ -523,7 +531,7 @@ export interface InputHTMLAttributes extends HTMLAttributes {
     size?: Numberish;
     src?: string;
     step?: Numberish;
-    type?: string;
+    type?: InputTypeHTMLAttribute;
     value?: any;
     width?: Numberish;
 }
@@ -541,7 +549,7 @@ export interface LabelHTMLAttributes extends HTMLAttributes {
     form?: string;
 }
 export interface LiHTMLAttributes extends HTMLAttributes {
-    value?: string | string[] | number;
+    value?: string | ReadonlyArray<string> | number;
 }
 export interface LinkHTMLAttributes extends HTMLAttributes {
     as?: string;
@@ -554,6 +562,7 @@ export interface LinkHTMLAttributes extends HTMLAttributes {
     rel?: string;
     sizes?: string;
     type?: string;
+    charset?: string;
 }
 export interface MapHTMLAttributes extends HTMLAttributes {
     name?: string;
@@ -586,7 +595,7 @@ export interface MeterHTMLAttributes extends HTMLAttributes {
     max?: Numberish;
     min?: Numberish;
     optimum?: Numberish;
-    value?: string | string[] | number;
+    value?: string | ReadonlyArray<string> | number;
 }
 export interface QuoteHTMLAttributes extends HTMLAttributes {
     cite?: string;
@@ -624,14 +633,15 @@ export interface OutputHTMLAttributes extends HTMLAttributes {
 }
 export interface ParamHTMLAttributes extends HTMLAttributes {
     name?: string;
-    value?: string | string[] | number;
+    value?: string | ReadonlyArray<string> | number;
 }
 export interface ProgressHTMLAttributes extends HTMLAttributes {
     max?: Numberish;
-    value?: string | string[] | number;
+    value?: string | ReadonlyArray<string> | number;
 }
 export interface ScriptHTMLAttributes extends HTMLAttributes {
     async?: Booleanish;
+    /** @deprecated */
     charset?: string;
     crossorigin?: string;
     defer?: Booleanish;
@@ -670,6 +680,7 @@ export interface TableHTMLAttributes extends HTMLAttributes {
     cellpadding?: Numberish;
     cellspacing?: Numberish;
     summary?: string;
+    width?: Numberish;
 }
 export interface TextareaHTMLAttributes extends HTMLAttributes {
     autocomplete?: string;
@@ -682,10 +693,10 @@ export interface TextareaHTMLAttributes extends HTMLAttributes {
     minlength?: Numberish;
     name?: string;
     placeholder?: string;
-    readonly?: boolean;
+    readonly?: Booleanish;
     required?: Booleanish;
     rows?: Numberish;
-    value?: string | string[] | number;
+    value?: string | ReadonlyArray<string> | number;
     wrap?: string;
 }
 export interface TdHTMLAttributes extends HTMLAttributes {
@@ -694,6 +705,9 @@ export interface TdHTMLAttributes extends HTMLAttributes {
     headers?: string;
     rowspan?: Numberish;
     scope?: string;
+    abbr?: string;
+    height?: Numberish;
+    width?: Numberish;
     valign?: 'top' | 'middle' | 'bottom' | 'baseline';
 }
 export interface ThHTMLAttributes extends HTMLAttributes {
@@ -702,6 +716,7 @@ export interface ThHTMLAttributes extends HTMLAttributes {
     headers?: string;
     rowspan?: Numberish;
     scope?: string;
+    abbr?: string;
 }
 export interface TimeHTMLAttributes extends HTMLAttributes {
     datetime?: string;
@@ -719,6 +734,7 @@ export interface VideoHTMLAttributes extends MediaHTMLAttributes {
     poster?: string;
     width?: Numberish;
     disablePictureInPicture?: Booleanish;
+    disableRemotePlayback?: Booleanish;
 }
 export interface WebViewHTMLAttributes extends HTMLAttributes {
     allowfullscreen?: Booleanish;
@@ -746,7 +762,7 @@ export interface SVGAttributes extends AriaAttributes, EventHandlers<Events> {
      * @see https://www.w3.org/TR/SVG/styling.html#ElementSpecificStyling
      */
     class?: any;
-    style?: string | CSSProperties;
+    style?: StyleValue;
     color?: string;
     height?: Numberish;
     id?: string;
@@ -761,6 +777,7 @@ export interface SVGAttributes extends AriaAttributes, EventHandlers<Events> {
     width?: Numberish;
     role?: string;
     tabindex?: Numberish;
+    crossOrigin?: 'anonymous' | 'use-credentials' | '';
     'accent-height'?: Numberish;
     accumulate?: 'none' | 'sum';
     additive?: 'replace' | 'sum';
@@ -1279,6 +1296,4 @@ export declare const render: RootRenderFunction<Element | ShadowRoot>;
 export declare const hydrate: RootHydrateFunction;
 export declare const createApp: CreateAppFunction<Element>;
 export declare const createSSRApp: CreateAppFunction<Element>;
-
-
 

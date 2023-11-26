@@ -1805,6 +1805,8 @@ declare interface RefInfo {
     refLabel: string;
 }
 
+declare function registerInterceptor(key: string, callback: (key: string, value: any) => void): void;
+
 /** Format Date as Relative Time from now */
 declare function relativeTime(val: string | Date | number, rtf?: Intl.RelativeTimeFormat): string | undefined;
 
@@ -1942,7 +1944,9 @@ declare function timeInputFormat(s?: string | number | Date | null): string;
 /** Resolve Absolute URL from relative path */
 declare function toAppUrl(url: string): string | undefined;
 
-/** Convert Request DTO values to supported HTML Input values */
+declare function toAuth(auth?: AuthenticateResponse): any;
+
+/** Mutates Request DTO values to supported HTML Input values */
 declare function toFormValues(dto: any, metaType?: MetadataType | null): any;
 
 /** Update reactive `transition` class based on Tailwind animation transition rule-set */
@@ -2297,6 +2301,7 @@ export declare function useAuth(): {
         roles?: string[] | undefined;
         permissions?: string[] | undefined;
     } | null>;
+    toAuth: typeof toAuth;
     isAuthenticated: ComputedRef<boolean>;
     hasRole: typeof hasRole;
     hasPermission: typeof hasPermission;
@@ -2321,6 +2326,7 @@ export declare function useConfig(): {
     setAutoQueryGridDefaults: typeof setAutoQueryGridDefaults;
     assetsPathResolver: typeof assetsPathResolver;
     fallbackPathResolver: typeof fallbackPathResolver;
+    registerInterceptor: typeof registerInterceptor;
 };
 
 export declare function useFiles(): {

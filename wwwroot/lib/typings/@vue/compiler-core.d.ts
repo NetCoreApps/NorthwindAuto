@@ -90,10 +90,10 @@ export interface TransformContext extends Required<Omit<TransformOptions, 'filen
     removeIdentifiers(exp: ExpressionNode | string): void;
     hoist(exp: string | JSChildNode | ArrayExpression): SimpleExpressionNode;
     cache<T extends JSChildNode>(exp: T, isVNode?: boolean): CacheExpression | T;
-    constantCache: Map<TemplateChildNode, ConstantTypes>;
+    constantCache: WeakMap<TemplateChildNode, ConstantTypes>;
     filters?: Set<string>;
 }
-export declare function createTransformContext(root: RootNode, { filename, prefixIdentifiers, hoistStatic, cacheHandlers, nodeTransforms, directiveTransforms, transformHoist, isBuiltInComponent, isCustomElement, expressionPlugins, scopeId, slotted, ssr, inSSR, ssrCssVars, bindingMetadata, inline, isTS, onError, onWarn, compatConfig }: TransformOptions): TransformContext;
+export declare function createTransformContext(root: RootNode, { filename, prefixIdentifiers, hoistStatic, hmr, cacheHandlers, nodeTransforms, directiveTransforms, transformHoist, isBuiltInComponent, isCustomElement, expressionPlugins, scopeId, slotted, ssr, inSSR, ssrCssVars, bindingMetadata, inline, isTS, onError, onWarn, compatConfig }: TransformOptions): TransformContext;
 export declare function transform(root: RootNode, options: TransformOptions): void;
 export declare function traverseNode(node: RootNode | TemplateChildNode, context: TransformContext): void;
 export declare function createStructuralDirectiveTransform(name: string | RegExp, fn: StructuralDirectiveTransform): NodeTransform;
@@ -840,6 +840,12 @@ export interface TransformOptions extends SharedTransformCodegenOptions, ErrorHa
      * needed to render inline CSS variables on component root
      */
     ssrCssVars?: string;
+    /**
+     * Whether to compile the template assuming it needs to handle HMR.
+     * Some edge cases may need to generate different code for HMR to work
+     * correctly, e.g. #6938, #7138
+     */
+    hmr?: boolean;
 }
 export interface CodegenOptions extends SharedTransformCodegenOptions {
     /**
@@ -948,6 +954,7 @@ export declare function injectProp(node: VNodeCall | RenderSlotCall, prop: Prope
 export declare function toValidAssetId(name: string, type: 'component' | 'directive' | 'filter'): string;
 export declare function hasScopeRef(node: TemplateChildNode | IfBranchNode | ExpressionNode | undefined, ids: TransformContext['identifiers']): boolean;
 export declare function getMemoedVNodeCall(node: BlockCodegenNode | MemoExpression): VNodeCall | RenderSlotCall;
+export declare const forAliasRE: RegExp;
 
 export declare function walkIdentifiers(root: Node$1, onIdentifier: (node: Identifier, parent: Node$1, parentStack: Node$1[], isReference: boolean, isLocal: boolean) => void, includeAll?: boolean, parentStack?: Node$1[], knownIds?: Record<string, number>): void;
 export declare function isReferencedIdentifier(id: Identifier, parent: Node$1 | null, parentStack: Node$1[]): boolean;
@@ -976,7 +983,7 @@ export declare function stringifyExpression(exp: ExpressionNode | string): strin
 
 export declare const trackSlotScopes: NodeTransform;
 export declare const trackVForSlotScopes: NodeTransform;
-export type SlotFnBuilder = (slotProps: ExpressionNode | undefined, slotChildren: TemplateChildNode[], loc: SourceLocation) => FunctionExpression;
+export type SlotFnBuilder = (slotProps: ExpressionNode | undefined, vForExp: ExpressionNode | undefined, slotChildren: TemplateChildNode[], loc: SourceLocation) => FunctionExpression;
 export declare function buildSlots(node: ElementNode, context: TransformContext, buildSlotFn?: SlotFnBuilder): {
     slots: SlotsExpression;
     hasDynamicSlots: boolean;
