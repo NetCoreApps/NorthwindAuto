@@ -14,86 +14,97 @@ public class AppHost : AppHostBase, IHostingStartup
     public AppHost() : base("Northwind Auto", typeof(MyServices).Assembly) {}
 
     public void Configure(IWebHostBuilder builder) => builder
-        .ConfigureServices((context, services) => {
-            // Register Database Connection, see: https://docs.servicestack.net/ormlite/
-            services.AddSingleton<IDbConnectionFactory>(c => new OrmLiteConnectionFactory(
+        .ConfigureServices((context, services) =>
+        {
+            var dbFactory = new OrmLiteConnectionFactory(
                 context.HostingEnvironment.ContentRootPath.CombineWith("northwind.sqlite"),
-                SqliteDialect.Provider));
+                SqliteDialect.Provider);
+            // Register Database Connection, see: https://docs.servicestack.net/ormlite/
+            services.AddSingleton<IDbConnectionFactory>(c => dbFactory);
+            
+            services.AddPlugin(new AutoQueryDataFeature());
+            
+            services.AddPlugin(new AutoQueryFeature
+            {
+                MaxLimit = 100,
+                GenerateCrudServices = new GenerateCrudServices
+                {
+                    AutoRegister = true,
+                    DbFactory = dbFactory,
+                    ServiceFilter = (op, req) =>
+                    {
+                        // Annotate all Auto generated Request DTOs with [Tag("Northwind")] attribute
+                        op.Request.AddAttributeIfNotExists(new TagAttribute("Northwind"));
+                    },
+                    TypeFilter = (type, req) =>
+                    {
+                        if (Icons.TryGetValue(type.Name, out var icon))
+                            type.AddAttribute(new IconAttribute { Svg = Svg.Create(icon) });
+
+                        if (type.Name == "Employee" || type.IsCrudCreateOrUpdate("Employee"))
+                        {
+                            type.Properties.RemoveAll(x => x.Name == "Photo");
+                            type.ReorderProperty("PhotoPath", before: "Title")
+                                .AddAttribute(new FormatAttribute(FormatMethods.IconRounded));
+                            type.ReorderProperty("ReportsTo", after: "Title");
+                            if (type.IsCrud())
+                            {
+                                type.Property("PhotoPath")
+                                    .AddAttribute(new InputAttribute { Type = Input.Types.File })
+                                    .AddAttribute(new UploadToAttribute("employees"));
+                                type.Property("Notes")
+                                    .AddAttribute(new InputAttribute { Type = Input.Types.Textarea });
+                            }
+                            else if (type.Name == "Employee")
+                            {
+                                type.Property("ReportsTo").AddAttribute(
+                                    new RefAttribute { Model = "Employee", RefId = "Id", RefLabel = "LastName" });
+                                type.Property("HomePhone").AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
+                            }
+                        }
+                        else if (type.Name == "Order")
+                        {
+                            type.Properties.Where(x => x.Name.EndsWith("Date")).Each(p =>
+                                p.AddAttribute(new IntlDateTime(DateStyle.Medium)));
+                            type.Property("Freight").AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
+                            type.Property("ShipVia").AddAttribute(
+                                new RefAttribute { Model = "Shipper", RefId = "Id", RefLabel = "CompanyName" });
+                        }
+                        else if (type.Name == "OrderDetail")
+                        {
+                            type.Property("UnitPrice").AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
+                            type.Property("Discount").AddAttribute(new IntlNumber(NumberStyle.Percent));
+                        }
+                        else if (type.Name == "EmployeeTerritory")
+                        {
+                            type.Property("TerritoryId").AddAttribute(
+                                new RefAttribute
+                                    { Model = "Territory", RefId = "Id", RefLabel = "TerritoryDescription" });
+                        }
+                        else if (type.Name is "Customer" or "Supplier" or "Shipper")
+                        {
+                            type.Property("Phone").AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
+                            type.Property("Fax")?.AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
+                        }
+                    },
+                },
+            });
+
+            var wwwrootVfs = new FileSystemVirtualFiles(context.HostingEnvironment.WebRootPath);
+            
+            services.AddPlugin(new FilesUploadFeature(
+                new UploadLocation("employees", wwwrootVfs, allowExtensions: FileExt.WebImages,
+                    writeAccessRole: RoleNames.AllowAnon,
+                    resolvePath: ctx => $"/profiles/employees/{ctx.Dto.GetId()}.{ctx.FileExtension}")));
+
+            
         });
 
-    public override void Configure(Container container)
+    public override void Configure()
     {
         SetConfig(new HostConfig { DebugMode = true });
-
-        var wwwrootVfs = GetVirtualFileSource<FileSystemVirtualFiles>();
-        Plugins.Add(new FilesUploadFeature(
-            new UploadLocation("employees", wwwrootVfs, allowExtensions: FileExt.WebImages,
-                writeAccessRole: RoleNames.AllowAnon,
-                resolvePath: ctx => $"/profiles/employees/{ctx.Dto.GetId()}.{ctx.FileExtension}")));
-
         ConfigurePlugin<UiFeature>(feature => 
             feature.Info.BrandIcon = new ImageInfo { Uri = "/logo.svg", Cls = "w-8 h-8 mr-1" });
-
-        Plugins.Add(new AutoQueryFeature {
-            MaxLimit = 100,
-            GenerateCrudServices = new GenerateCrudServices {
-                AutoRegister = true,
-                ServiceFilter = (op, req) => {
-                    // Annotate all Auto generated Request DTOs with [Tag("Northwind")] attribute
-                    op.Request.AddAttributeIfNotExists(new TagAttribute("Northwind"));
-                },
-                TypeFilter = (type, req) =>
-                {
-                    if (Icons.TryGetValue(type.Name, out var icon))
-                        type.AddAttribute(new IconAttribute { Svg = Svg.Create(icon) });
-
-                    if (type.Name == "Employee" || type.IsCrudCreateOrUpdate("Employee"))
-                    {
-                        type.Properties.RemoveAll(x => x.Name == "Photo");
-                        type.ReorderProperty("PhotoPath", before: "Title")
-                            .AddAttribute(new FormatAttribute(FormatMethods.IconRounded));
-                        type.ReorderProperty("ReportsTo", after: "Title");
-                        if (type.IsCrud())
-                        {
-                            type.Property("PhotoPath")
-                                .AddAttribute(new InputAttribute { Type = Input.Types.File })
-                                .AddAttribute(new UploadToAttribute("employees"));
-                            type.Property("Notes")
-                                .AddAttribute(new InputAttribute { Type = Input.Types.Textarea });
-                        }
-                        else if (type.Name == "Employee")
-                        {
-                            type.Property("ReportsTo").AddAttribute(
-                                new RefAttribute { Model = "Employee", RefId = "Id", RefLabel = "LastName" });
-                            type.Property("HomePhone").AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
-                        }
-                    }
-                    else if (type.Name == "Order")
-                    {
-                        type.Properties.Where(x => x.Name.EndsWith("Date")).Each(p =>
-                            p.AddAttribute(new IntlDateTime(DateStyle.Medium)));
-                        type.Property("Freight").AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
-                        type.Property("ShipVia").AddAttribute(
-                            new RefAttribute { Model = "Shipper", RefId = "Id", RefLabel = "CompanyName" });
-                    }
-                    else if (type.Name == "OrderDetail")
-                    {
-                        type.Property("UnitPrice").AddAttribute(new IntlNumber { Currency = NumberCurrency.USD });
-                        type.Property("Discount").AddAttribute(new IntlNumber(NumberStyle.Percent));
-                    }
-                    else if (type.Name == "EmployeeTerritory")
-                    {
-                        type.Property("TerritoryId").AddAttribute(
-                            new RefAttribute { Model = "Territory", RefId = "Id", RefLabel = "TerritoryDescription" });
-                    }
-                    else if (type.Name is "Customer" or "Supplier" or "Shipper")
-                    {
-                        type.Property("Phone").AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
-                        type.Property("Fax")?.AddAttribute(new FormatAttribute(FormatMethods.LinkPhone));
-                    }
-                },
-            },
-        });
     }
     public static Dictionary<string, string> Icons { get; } = new()
     {

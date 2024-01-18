@@ -5,6 +5,17 @@ ServiceStack.Licensing.RegisterLicense("OSS BSD-3-Clause 2023 https://github.com
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Register all services
+builder.Services.AddServiceStack(typeof(MyServices).Assembly, c => {
+    c.AddSwagger(o => {
+        //o.AddJwtBearer();
+        o.AddBasicAuth();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -16,6 +27,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.UseServiceStack(new AppHost());
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseServiceStack(new AppHost(), options =>
+{
+    options.MapEndpoints();
+});
 
 app.Run();
