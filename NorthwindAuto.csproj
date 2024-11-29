@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ContainerLabel Include="service" Value="northwindauto" />
+    <ContainerLabel Include="service" Value="northwind-auto" />
   </ItemGroup>
 
   <ItemGroup>
